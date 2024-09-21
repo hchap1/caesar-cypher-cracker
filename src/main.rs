@@ -21,8 +21,24 @@ fn main() {
     let mut args = args();
     match args.nth(1) {
         Some(raw) => {
-            let animate: bool = args.collect::<Vec<String>>().contains(&String::from("--animate"));
-            let encoded_message = raw.to_lowercase();
+            let mut animate: bool = false;
+            let mut load_file: bool = false;
+            for arg in args {
+                if arg == "--animate" { animate = true; }
+                if arg == "--load_file" { load_file = true; }
+            }
+            let encoded_message: String = match load_file {
+                true => {
+                    match read_to_string(raw.clone()) {
+                        Ok(data) => { data.to_lowercase() }
+                        Err(_) => {
+                            eprintln!("Error: Cannot read file {raw}.");
+                            String::new()
+                        }
+                    }
+                }
+                false => { raw.to_lowercase() }
+            };
             let mut dict_hash: HashMap<String, bool> = HashMap::new();
             match read_to_string("dictionary.txt") {
                 Ok(dict_words) => {
