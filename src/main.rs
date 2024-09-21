@@ -2,7 +2,7 @@ use std::fs::{read_to_string, write};
 use std::io::{self, Write};
 use std::env::args;
 use std::thread::sleep;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 use std::collections::HashMap;
 
 fn usize_to_char(idx: usize) -> Option<char> {
@@ -21,6 +21,7 @@ fn main() {
     let mut args = args();
     match args.nth(1) {
         Some(raw) => {
+            let start = Instant::now();
             let mut animate: bool = false;
             let mut load_file: bool = false;
             let mut save_file: bool = false;
@@ -106,8 +107,12 @@ fn main() {
                     match save_file {
                         true => {
                             let _ = write("output.txt", final_decode);
+                            println!("Decoded {raw} in {} milliseconds with shift +{}", start.elapsed().as_millis(), best_shift);
                         }
-                        false => { println!("+{best_shift}-> {final_decode}    "); }
+                        false => {
+                            println!("+{best_shift}-> {final_decode}    ");
+                            println!("Decoded input in {} milliseconds with shift +{}", start.elapsed().as_millis(), best_shift);
+                        }
                     }
                 }
                 Err(_) => {
