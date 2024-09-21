@@ -8,3 +8,4 @@ Usage:<br/>
 Flags:<br/>
 --animate -> Outputs each possibility as it is considered, adds short delay so you can see each print.<br/>
 --load_file -> Rather than specifying the cypher inline, load it from a file.<br/>
+--save_file -> Rather than outputting result with stdout, write to output.txt.<br/>
