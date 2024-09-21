@@ -1,4 +1,4 @@
-use std::fs::read_to_string;
+use std::fs::{read_to_string, write};
 use std::io::{self, Write};
 use std::env::args;
 use std::thread::sleep;
@@ -23,10 +23,13 @@ fn main() {
         Some(raw) => {
             let mut animate: bool = false;
             let mut load_file: bool = false;
+            let mut save_file: bool = false;
             for arg in args {
                 if arg == "--animate" { animate = true; }
                 if arg == "--load_file" { load_file = true; }
+                if arg == "--save_file" { save_file = true; }
             }
+            if save_file { animate = false; }
             let encoded_message: String = match load_file {
                 true => {
                     match read_to_string(raw.clone()) {
@@ -77,7 +80,12 @@ fn main() {
                             best_decode = decoded_message;
                         }
                     }
-                    println!("+{best_shift}-> {best_decode}    ");
+                    match save_file {
+                        true => {
+                            let _ = write("output.txt", best_decode);
+                        }
+                        false => { println!("+{best_shift}-> {best_decode}    "); }
+                    }
                 }
                 Err(_) => {
                     eprintln!("Error: Unable to access dictionary.txt.");
