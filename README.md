@@ -6,5 +6,5 @@ Usage:<br/>
 - caesar_cracker&lt;.exe> "some filepath" --load_file
 <br/>
 Flags:<br/>
-- --animate -> Outputs each possibility as it is considered, adds short delay so you can see each print.
-- --load_file -> Rather than specifying the cypher inline, load it from a file.
+--animate -> Outputs each possibility as it is considered, adds short delay so you can see each print.<br/>
+--load_file -> Rather than specifying the cypher inline, load it from a file.<br/>
