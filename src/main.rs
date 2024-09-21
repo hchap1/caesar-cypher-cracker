@@ -24,10 +24,12 @@ fn main() {
             let mut animate: bool = false;
             let mut load_file: bool = false;
             let mut save_file: bool = false;
+            let mut full_check: bool = false;
             for arg in args {
                 if arg == "--animate" { animate = true; }
                 if arg == "--load_file" { load_file = true; }
                 if arg == "--save_file" { save_file = true; }
+                if arg == "--full_check" { full_check = true; }
             }
             if save_file { animate = false; }
             let encoded_message: String = match load_file {
@@ -42,6 +44,10 @@ fn main() {
                 }
                 false => { raw.to_lowercase() }
             };
+            let optimized_encoded_message: String = match encoded_message.len() > 250 && !full_check {
+                true => { encoded_message[..1000].to_string() }
+                false => { encoded_message.clone() }
+            };
             let mut dict_hash: HashMap<String, bool> = HashMap::new();
             match read_to_string("dictionary.txt") {
                 Ok(dict_words) => {
@@ -53,7 +59,7 @@ fn main() {
                     let mut best_decode: String = String::new();
                     for shift in 0..26 {
                         let mut decoded_message: String = String::new();
-                        for c in encoded_message.chars() {
+                        for c in optimized_encoded_message.chars() {
                             decoded_message.push(match char_to_usize(c) {
                                 Some(idx) => { usize_to_char((idx + shift) % 26).unwrap_or(' ') }
                                 None => { c }
@@ -61,7 +67,8 @@ fn main() {
                         }
                         let mut count: f32 = 0f32;
                         let mut valid: f32 = 0f32;
-                        for word in decoded_message.split(' ') {
+                        let words: Vec<String> = decoded_message.split(' ').map(|x| x.to_string()).collect();
+                        for word in &words {
                             count += 1f32;
                             match dict_hash.get(word) {
                                 Some(_) => { valid += 1f32; }
@@ -80,11 +87,27 @@ fn main() {
                             best_decode = decoded_message;
                         }
                     }
+                    let final_decode: String = match full_check {
+                        false => {
+                            println!("BEST SHIFT: {best_shift}");
+                            let mut temp_string: String = String::new();
+                            for c in encoded_message.chars() {
+                                temp_string.push(match char_to_usize(c) {
+                                    Some(idx) => { usize_to_char((idx + (26 - best_shift)) % 26).unwrap_or(' ') }
+                                    None => { c }
+                                });
+                            }
+                            temp_string
+                        }
+                        true => {
+                            best_decode
+                        }
+                    };
                     match save_file {
                         true => {
-                            let _ = write("output.txt", best_decode);
+                            let _ = write("output.txt", final_decode);
                         }
-                        false => { println!("+{best_shift}-> {best_decode}    "); }
+                        false => { println!("+{best_shift}-> {final_decode}    "); }
                     }
                 }
                 Err(_) => {
